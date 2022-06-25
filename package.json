@@ -1,0 +1,24 @@
+{
+  "name": "body-validator-v2",
+  "version": "0.0.1",
+  "description": "Object validator created for express",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lamerat/body-validator-v2.git"
+  },
+  "keywords": [],
+  "author": "Simeon Mladenov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lamerat/body-validator-v2/issues"
+  },
+  "homepage": "https://github.com/Lamerat/body-validator-v2#readme",
+  "dependencies": {
+    "moment": "^2.29.3",
+    "validator": "^13.7.0"
+  }
+}

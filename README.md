@@ -1,2 +1,2 @@
-# -body-validator-v2
+# body-validator-v2
 Object validator created for express
