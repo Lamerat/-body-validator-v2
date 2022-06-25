@@ -41,6 +41,35 @@ const validTypes = ['String', 'Number', 'Date', 'Boolean', 'Email', 'URL', 'Mong
  * @property { string | null } errors
  */
 
+/**
+ * @typedef optionsString
+ * @type { object }
+ * @property { number } minSymbols - if field type is String - min symbols
+ * @property { number } maxSymbols - if field type is String - max symbols
+ * @property { boolean } canBeEmpty - if field type is String - can be empty string?
+ * @property { boolean } allowSpaces - if field type is String - allow to have spaces?
+ * @property { number } maxWords - if field type is String - max number of words
+ * @property { string[] } blackList - if field type is String - symbols that are forbidden
+ * @property { includeTypes } include - if field type is String - what type of characters it may contain
+ * @property { string[] } enum - if field type is String - can only be from predefined values
+ */
+
+/**
+ * @typedef optionsNumber
+ * @type { object }
+ * @property { number } min - if field type is Number - min value
+ * @property { number } max - if field type is Number - max value
+ */
+
+/**
+ * @typedef optionsArray
+ * @type { object }
+ * @property { number } minRecords - if field type is Array - min array length
+ * @property { number } maxRecords - if field type is Array - max array length
+ * @property { typeValues } arrayValuesType - if field type is Array - type of records
+ * @property { optionsValues } arrayValuesOptions - if field type is Array - validate options for records
+ */
+
 
 
 class Validator {
@@ -101,11 +130,51 @@ class Validator {
   validateSingle(field, value) {
     if (!this.#fields.hasOwnProperty(field)) throw new Error(`This validator don't have field '${field}'`)
     if (value === undefined) throw new Error(`Missing 'value'!`)
-    return this.#fields[field].validate(value)
+    const result = this.#fields[field].validate(value)
+    return result === common.success ? { success: true, errors: null } : { success: false, errors: result }
   }
 
   /**
-   * 
+   * Validate few fields from validator
+   * @param {string} fields 
+   * @param {any} body 
+   * @param {boolean} strict 
+   * @example myValidator.validateFields('name number previousTeams', body, true)
+   */
+  validateFields(fields, body, strict = true) {
+    const errors = []
+    if (!fields || typeof fields !== 'string' || !fields.trim()) throw new Error `Invalid 'fields'! Must be string!`
+    fields = fields.split(' ').filter(x => x.trim())
+    fields.forEach(x => {
+      if (!this.#fields.hasOwnProperty(x)) throw new Error (`This validator don't include field '${x}'`)
+    })
+    
+    const validateObject = (current) => {
+      Object.keys(this.#fields).filter(x => fields.includes(x)).forEach(key => {
+        const bodyField = common.getBodyField(current, key)
+        
+        if (!bodyField && this.#fields[key].required && strict) {
+          errors.push(`Missing field '${key}'`)
+          return
+        }
+
+        if (bodyField) {
+          const validateField = this.#fields[key].validate(bodyField)
+          if (this.#fields[key].type === 'Array' && this.#fields[key].validator) {
+            const validateArray  = this.#fields[key].validator.validate(bodyField)
+            if (!validateArray.success) errors.push(`'${key}' ${validateArray.errors}`)
+          }
+          if (validateField !== common.success) errors.push(`'${key}' ${validateField}`)
+        }
+      })
+    }
+
+    Array.isArray(body) ? body.forEach(el => validateObject(el)) : validateObject(body)
+    return errors.length ? { success: false, errors: errors.join(' | ') } : { success: true, errors: null }
+  }
+
+  /**
+   * Validate object (body)
    * @param {object | Array} body - Object for validate
    * @param {boolean} [strict] - Check for required option
    * @returns {returnObject}
@@ -138,7 +207,7 @@ class Validator {
   }
 
   /**
-   * 
+   * Validate body
    * @param {number} errStatus - If middleware return error - error code
    * @param {boolean} strict - check required field
    * @returns 
