@@ -14,7 +14,7 @@ npm i body-validator-v2
 const { Validator } = require('body-validator-v2')
 
 // ES6
-import { validator } from 'body-validator-v2'
+import { Validator } from 'body-validator-v2'
 ```
 
 For example will validate object for hockey player

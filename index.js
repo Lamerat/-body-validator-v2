@@ -153,7 +153,7 @@ class Validator {
       Object.keys(this.#fields).filter(x => fields.includes(x)).forEach(key => {
         const bodyField = common.getBodyField(current, key)
         
-        if (!bodyField && this.#fields[key].required && strict) {
+        if (bodyField === undefined && this.#fields[key].required && strict) {
           errors.push(`Missing field '${key}'`)
           return
         }
@@ -186,7 +186,7 @@ class Validator {
       Object.keys(this.#fields).forEach(key => {
         const bodyField = common.getBodyField(current, key)
         
-        if (!bodyField && this.#fields[key].required && strict) {
+        if (bodyField === undefined && this.#fields[key].required && strict) {
           errors.push(`Missing field '${key}'`)
           return
         }
@@ -220,7 +220,7 @@ class Validator {
         Object.keys(this.#fields).forEach(key => {
           const bodyField = common.getBodyField(current, key)
           
-          if (!bodyField && this.#fields[key].required && strict) {
+          if (bodyField === undefined && this.#fields[key].required && strict) {
             errors.push(`Missing field '${key}'`)
             return
           }
